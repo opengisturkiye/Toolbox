@@ -1,0 +1,5 @@
+{
+  "name": "GeoReact GIS Analyst",
+  "description": "A comprehensive web-based GIS application using React, OpenLayers, and Turf.js for advanced spatial analysis, geometric calculations, and density mapping.",
+  "requestFramePermissions": []
+}
