@@ -215,7 +215,7 @@ Bu proje MIT lisansı altında lisanslanmıştır.
 ## 👥 İletişim (Contact)
 
 - **GitHub**: [opengisturkiye](https://github.com/opengisturkiye)
-- **Email**: info@opengisturkiye.org
+- **Email**: opengisturkiye@gmail.com
 
 ---
 
