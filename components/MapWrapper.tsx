@@ -273,7 +273,9 @@ export const MapWrapper: React.FC<MapWrapperProps> = ({ points, polygons, lines,
         // Zoom to extent of results
         const extent = resultSourceRef.current.getExtent();
         if (!extent.some(isNaN)) {
-            mapRef.current.getView().fit(extent, { padding: [50, 50, 50, 50], duration: 1000 });
+            // Padding [top, right, bottom, left]
+            // Increased bottom padding to 400px to avoid covering by the bottom-right results panel
+            mapRef.current.getView().fit(extent, { padding: [50, 50, 400, 50], duration: 1000 });
         }
     }
   }, [resultLayer]);
@@ -293,7 +295,7 @@ export const MapWrapper: React.FC<MapWrapperProps> = ({ points, polygons, lines,
         )}
 
         {/* Legend */}
-        <div className="absolute bottom-4 left-4 bg-slate-900/90 border border-slate-700 p-3 rounded text-xs text-slate-300 shadow-lg pointer-events-none">
+        <div className="absolute bottom-4 left-4 bg-slate-900/90 border border-slate-700 p-3 rounded text-xs text-slate-300 shadow-lg pointer-events-none z-10">
             {visibleLayers.points && (
               <div className="flex items-center gap-2 mb-1">
                   <div className="w-3 h-3 rounded-full bg-red-500 border border-white"></div>

@@ -38,7 +38,7 @@ const App: React.FC = () => {
         activeTool, 
         pointsData, 
         polygonsData, 
-        linesData,
+        linesData, 
         params
       );
 
@@ -185,9 +185,9 @@ const App: React.FC = () => {
             visibleLayers={layerVisibility}
           />
 
-          {/* Analysis Result Overlay */}
+          {/* Analysis Result Overlay - Moved to Bottom Right */}
           {analysisResult && (
-            <div className="absolute top-4 right-4 bg-slate-800/90 backdrop-blur border border-slate-700 p-4 rounded-lg shadow-xl max-w-sm w-full animate-in fade-in slide-in-from-top-4 z-20 overflow-y-auto max-h-[80vh]">
+            <div className="absolute bottom-8 right-4 bg-slate-800/95 backdrop-blur border border-slate-700 p-4 rounded-lg shadow-2xl max-w-sm w-full animate-in fade-in slide-in-from-bottom-4 z-20 overflow-y-auto max-h-[60vh]">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-semibold text-slate-100 flex items-center gap-2">
                   <Info className="w-4 h-4 text-blue-400" />
