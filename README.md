@@ -16,18 +16,23 @@
 
 ## 🚀 Proje Hakkında (About Project)
 
-GeoReact CBS Analisti, modern web teknolojileri kullanılarak geliştirilmiş kapsamlı bir coğrafi bilgi sistemleri (CBS/GIS) analiz aracıdır. Bu uygulama, mekansal veri analizi, geometrik hesaplamalar, ağ analizleri ve veri görselleştirme işlemlerini kullanıcı dostu bir arayüz ile sunar.
+GeoReact CBS Analisti, OpenGIS Türkiye atölyeleri için geliştirilen, modern web teknolojileri kullanılarak oluşturulmuş **kapsamlı bir coğrafi bilgi sistemleri (CBS/GIS) analiz aracıdır**. 
 
-**English:** GeoReact GIS Analyst is a comprehensive Geographic Information Systems (GIS) analysis tool developed using modern web technologies. This application provides spatial data analysis, geometric calculations, network analysis, and data visualization operations through a user-friendly interface.
+Bu uygulama, vektör analiz işlemlerini kod yazmadan **tarayıcı üzerinde interaktif olarak** göstermeyi amaçlamaktadır. Mekansal veri analizi, geometrik hesaplamalar, ağ analizleri ve veri görselleştirme işlemlerini kullanıcı dostu bir arayüz ile sunarak, CBS eğitimlerini daha etkili ve pratik hale getirmektedir.
+
+**🎯 Ana Hedef:** Karmaşık mekansal algoritmaları örnekler üzerinden canlı olarak anlatarak öğrenme sürecini hızlandırmak.
+
+**English:** GeoReact GIS Analyst is a comprehensive Geographic Information Systems (GIS) analysis tool developed for OpenGIS Turkey workshops using modern web technologies. The application aims to demonstrate vector analysis operations **interactively in the browser without coding**. By presenting spatial data analysis, geometric calculations, network analysis, and data visualization through a user-friendly interface, it makes GIS education more effective and practical.
 
 ### ✨ Temel Özellikler (Key Features)
 
 - 🗺️ **İnteraktif Harita Arayüzü** - OpenLayers tabanlı gelişmiş harita görselleştirme
-- 🔧 **50+ Analiz Aracı** - Kapsamlı mekansal analiz araç seti
-- 📊 **Gerçek Zamanlı Sonuçlar** - Anında analiz sonuçları ve görselleştirme
-- 🎯 **Kullanıcı Dostu Tasarım** - Modern ve sezgisel kullanıcı arayüzü
+- 🔧 **50+ Analiz Aracı** - 7 kategoride kapsamlı mekansal analiz araç seti
+- 📊 **Gerçek Zamanlı Sonuçlar** - Anında analiz sonuçları ve harita üzerinde görselleştirme
+- 🎯 **Kullanıcı Dostu Tasarım** - Hiç kod yazmadan analiz yapabileceğiniz intuitif arayüz
 - 🚀 **Yüksek Performans** - React + TypeScript + Vite teknoloji yığını
 - 📱 **Responsive Tasarım** - Tüm cihazlarda uyumlu çalışma
+- 🎓 **Eğitim Amaçlı** - Atölyeler ve derslerde vektör analiz öğretimi için ideal
 
 ## 🛠️ Teknoloji Yığını (Technology Stack)
 
@@ -81,23 +86,73 @@ npm run preview
 
 ## 🎯 Analiz Araçları (Analysis Tools)
 
+Uygulama, **Turf.js** kütüphanesinden güç alan, **50'den fazla analiz aracı** içermektedir. Bu araçlar 7 ana kategoriye ayrılmıştır:
+
 ### 1. 📐 Geometrik & Ölçüm (Geometry & Measurement)
-- **Alan Hesapla** - Poligonların m² veya km² cinsinden alan hesabı
-- **Çizgi Uzunluğu** - Yol, boru hattı mesafe ölçümleri
-- **Sınırlayıcı Kutu** - Verinin coğrafi sınırlarını belirleme
-- **Merkez Noktalar** - Şekillerin ağırlık merkezi hesabı
-- **Açı/Azimut** - İki nokta arası pusula yönü hesabı
+**Mühendislik, emlak ve yer planlaması için temel hesaplamalar**
+- **Alan Hesapla (Area)** - Poligonların m² veya km² cinsinden alan hesabı
+- **Çizgi Uzunluğu (Length)** - Yol, boru hattı, nehir gibi doğrusal nesnelerin mesafe ölçümleri
+- **Sınırlayıcı Kutu (Bounding Box)** - Verinin kapladığı maksimum coğrafi sınırlarını belirleme
+- **Merkez Noktalar (Centroids)** - Şekillerin ağırlık merkezini hesaplama (etiket yerleşimi için ideal)
+- **Açı/Azimut (Bearing)** - İki nokta arasındaki pusula yönünü derece cinsinden hesaplama
 
-### 2. 🔄 Vektör İşlemleri (Vector Operations)
-- **Tampon Bölge** - Nesne etrafında güvenlik/etki alanı oluşturma
-- **Kesişim/Birleşim/Fark** - Geometrik set işlemleri
-- **Bütünleştirme** - Aynı tip bölgeleri birleştirme
-- **Kırpma** - Veriyi maske ile kesme
-- **Basitleştirme** - Geometri karmaşıklığını azaltma
+### 2. 🔄 Vektör İşlemleri / Katman Analizi (Vector Operations / Overlay)
+**Katmanlar arası karmaşık geometrik işlemler**
+- **Tampon Bölge (Buffer)** - Nokta, çizgi veya poligon etrafında dinamik güvenlik/etki alanı oluşturma
+- **Kesişim (Intersect)** - İki alanın sadece çakışan (ortak) kısmını çıkarma
+- **Birleşim (Union)** - Farklı bölgeleri tek bir yasal sınır haline getirir
+- **Fark (Difference)** - Bir alandan diğerini kesip çıkarır (A eksi B operasyonu)
+- **Bütünleştir (Dissolve)** - İç sınırları kaldırarak aynı türdeki bölgeleri birleştirme
+- **Kırpma (Clip)** - Büyük veriyi belirlenen maske (çerçeve) ile kesme
+- **Dış Bükey Örtü (Convex Hull)** - Dağınık noktaları çevreleyen en küçük poligonu çizme
+- **Basitleştir (Simplify)** - Karmaşık geometrilerin nokta sayısını azaltarak performansı artırma
 
-### 3. 🎲 Mekansal Analiz (Spatial Analysis)
-- **Mekansal Birleşim** - Nokta-poligon ilişki analizi
-- **En Yakın Nokta** - Proximite analizleri
+### 3. 🎲 Mekansal Analiz / İstatistik (Spatial Analysis)
+**Veri dağılımı, uzaklık ve kümeleme analizleri**
+- **Mekansal Birleşim (Spatial Join)** - Hangi poligonun içinde kaç nokta olduğunu sayma
+- **En Yakın Nokta (Nearest Point)** - Konumunuza en yakın hizmet/ilgi noktasını bulma
+- **Voronoi Bölgeleri (Voronoi Diagram)** - Her noktanın hakimiyet alanını haritalama (hizmet alanı planlaması)
+- **Üçgen Ağı (TIN)** - Düzensiz noktalardan 3B arazi modeli için yüzey ağı oluşturma
+- **K-Means Kümeleme (Clustering)** - Benzer konumdaki noktaları otomatik olarak gruplandırma
+- **DBSCAN Kümeleme** - Gürültüyü filtreleyerek yoğunluk kümelerini bulma
+- **Mesafe Matrisi (Distance Matrix)** - Tüm noktalar arasındaki mesafeleri matris şeklinde analiz etme
+
+### 4. 🛣️ Ağ Analizi (Network Analysis)
+**Yol, altyapı ve bağlantı ağları için analizler**
+- **Yol Kesişimleri (Line Intersect)** - Yolların kesiştiği kavşak noktalarını otomatik tespit etme
+- **Eğri Yumuşatma (Bezier Spline)** - Keskin köşeli çizgileri estetik eğrilere dönüştürme
+- **Parçalara Böl (Line Chunk)** - Uzun hatları belirli km aralıklarla segmentlere ayırma
+- **Paralel Ofset (Line Offset)** - Mevcut hattan sabit mesafede paralel yeni şerit oluşturma
+- **Çizgiye Yapıştırma (Snap)** - Hatalı GPS noktalarını en yakın yola hizalama
+
+### 5. 📊 Grid & Yoğunluk Analizleri (Grid & Density)
+**Alan taraması ve veri yoğunluğu görselleştirmeleri**
+- **Altıgen Yoğunluk (Hexbin)** - Veriyi altıgen peteklerde özetleyerek yoğunluğu gösterme
+- **Eş Değer Bölgeleri (Isobands)** - Eş yükselti veya sıcaklık eğrileri oluşturma
+- **Enterpolasyon (IDW)** - Örnek noktalardan tahmini yüzey haritası üretme (sıcaklık, yağış haritaları)
+- **Nokta Grid (Point Grid)** - Sahayı düzenli nokta aralıklarıyla tarama
+- **Kare Grid (Square Grid)** - Alanı eşit kare parsellere bölme
+- **Üçgen Grid (Triangle Grid)** - Alanı üçgen ağ yapısına bölme
+- **Altıgen Grid (Hex Grid)** - Alanı bal peteği (hexagonal) yapısına bölme
+
+### 6. ✅ Topolojik Sorgular (Topological Queries)
+**Geometriler arası mekansal ilişkileri belirleme**
+- **Nokta İçinde mi? (PointInPoly)** - Konumun yasaklı/izinli bölgede olup olmadığını sorgulama
+- **Kapsıyor mu? (Contains)** - Bir alanın diğerini tamamen içine alıp almadığını kontrol etme
+- **Kesiyor mu? (Crosses)** - Çizgisel varlıkların kesişim durumunu kontrol etme
+- **Ayrık mı? (Disjoint)** - İki nesnenin birbirinden tamamen bağımsız olup olmadığına bakma
+- **Örtüşüyor mu? (Overlap)** - İki alanın kısmen üst üste binip binmediğini kontrol etme
+- **Eşit mi? (Equal)** - İki geometrinin mekansal olarak birebir aynı olup olmadığına bakma
+- **Temas Ediyor mu? (Touch)** - Sadece sınır komşuluğu olup olmadığını kontrol etme
+- **Kesişiyor mu? (Intersects)** - Nesneler arasında herhangi bir temas veya çakışma olup olmadığı
+
+### 7. 🎨 Veri Üretimi (Data Generation)
+**Test ve simülasyon için veri oluşturma**
+- **Sektör (Sector)** - Kamera veya radar görüş açısını temsil eden dilim çizme
+- **Elips (Ellipse)** - Yönlü dağılımı göstermek için elips çizme
+- **Rastgele Nokta (Random Point)** - Simülasyonlar için rastgele nokta verisi üretme
+- **Rastgele Çizgi (Random Line)** - Test amaçlı rastgele çizgi ağları üretme
+- **Rastgele Poligon (Random Polygon)** - Test amaçlı rastgele parseller üretme
 - **Voronoi Bölgeleri** - Hakimiyet alanı haritalama
 - **K-Means/DBSCAN Kümeleme** - Veri segmentasyonu
 - **Mesafe Matrisi** - Çok noktalı mesafe hesaplama
@@ -128,57 +183,93 @@ npm run preview
 
 ```
 georeact-gis-analyst/
-├── 📁 components/          # React bileşenleri
-│   ├── MapWrapper.tsx      # OpenLayers harita bileşeni
-│   └── Sidebar.tsx         # Araç çubuğu bileşeni
-├── 📁 services/           # İş mantığı katmanı
-│   └── turfService.ts      # Turf.js analiz servisleri
-├── 📄 App.tsx             # Ana uygulama bileşeni
-├── 📄 constants.ts        # Örnek veriler ve araç tanımları
-├── 📄 types.ts            # TypeScript tip tanımları
-├── 📄 index.tsx           # Uygulama giriş noktası
-├── 📄 index.html          # HTML template
-├── 📄 package.json        # Proje bağımlılıkları
-├── 📄 tsconfig.json       # TypeScript konfigürasyonu
-├── 📄 vite.config.ts      # Vite build konfigürasyonu
-└── 📄 README.md          # Proje dokümantasyonu
+├── 📁 components/                 # React bileşenleri
+│   ├── MapWrapper.tsx             # OpenLayers harita görselleştirme
+│   ├── Sidebar.tsx                # Araç ve kategori seçim paneli
+│   ├── Header.tsx                 # Başlık ve veri bilgileri
+│   ├── ParameterInputs.tsx        # Dinamik parametre giriş formu
+│   └── ResultsPanel.tsx           # Analiz sonuçları gösterim paneli
+├── 📁 services/                   # İş mantığı ve API katmanı
+│   └── turfService.ts             # Turf.js analiz motorunun entegrasyonu
+├── 📁 hooks/                      # Custom React hooks
+│   └── useLayerVisibility.ts      # Katman görünürlüğü yönetimi
+├── 📄 App.tsx                     # Ana uygulama komponenti
+├── 📄 constants.ts                # Örnek veriler, TOOLS_CONFIG ve statik veri
+├── 📄 types.ts                    # TypeScript tip ve enum tanımları
+├── 📄 index.tsx                   # Uygulama giriş noktası
+├── 📄 index.html                  # HTML template
+├── 📄 package.json                # Proje bağımlılıkları ve script'leri
+├── 📄 tsconfig.json               # TypeScript konfigürasyonu
+├── 📄 vite.config.ts              # Vite build ve dev sunucu konfigürasyonu
+└── 📄 README.md                   # Proje dokümantasyonu
 ```
 
 ## 🎮 Kullanım (Usage)
 
 ### Temel Kullanım Akışı
 
-1. **Araç Seçimi** - Sol panelden analiz yapmak istediğiniz aracı seçin
-2. **Parametreler** - Gerekirse analiz parametrelerini ayarlayın
-3. **Çalıştırma** - "Çalıştır" butonuna tıklayın
-4. **Sonuçlar** - Harita üzerinde sonuçları görün ve sağ alttaki panelden detayları inceleyin
+1. **Araç Seçimi** - Sol panelden (Sidebar) 7 kategoriden istediğiniz analiz aracını seçin
+2. **Parametreler** - Araç özelinde gerekirse (buffer mesafesi, grid boyutu, küme sayısı vb.) parametreleri ayarlayın
+3. **Çalıştırma** - "Çalıştır (Run)" butonuna tıklatarak analizi başlatın
+4. **Sonuçlar** - Harita üzerinde renkli olarak gösterilen sonuçları görün ve sağ alttaki **Sonuç Paneli (Results Panel)** ile detaylı istatistikleri inceleyin
 
 ### Örnek Kullanım Senaryoları
 
-- **Emlak Analizi** - Alan hesaplama ve tampon bölge analizi
-- **Şehir Planlama** - Yoğunluk haritaları ve erişilebilirlik analizi  
-- **Lojistik Optimizasyonu** - En yakın nokta ve mesafe matrisi hesaplama
-- **Çevresel Analiz** - Etki alanı modelleme ve risk bölgeleri
+#### 📍 Emlak ve Yer Planlaması
+- Alan hesaplama ile parsellerin büyüklüğünü öğrenme
+- Tampon bölge analizi ile koruma alanları belirleme
+- Mekansal birleşim ile civar imkanlarını analiz etme
+
+#### 🏢 Şehir Planlama ve Altyapı
+- Hexbin yoğunluk haritaları ile nüfus/işyeri dağılımı görselleştirme
+- Voronoi diyagramları ile hizmet alanı planlaması
+- Mesh grid oluşturarak kentin farklı bölgelerini karşılaştırma
+
+#### 🚚 Lojistik Optimizasyonu
+- En yakın nokta (Nearest) analizi ile operatör atama
+- Mesafe matrisi hesaplama ile rota planlaması
+- Line offset ile paralel depo yolları tasarlama
+
+#### 🌱 Çevresel Analiz
+- Etki alanı modelleme (Buffer) ile kirlilik yayılma alanı
+- IDW interpolasyon ile sıcaklık/yağış haritaları
+- Isobands ile eş yükselti konturları
+
+#### 📊 Veri Analitikleri
+- K-Means ve DBSCAN kümeleme ile veri segmentasyonu
+- Convex Hull ile dağınık noktaların sınırlarını bulma
+- Simplify analizi ile karmaşık geometrileri düzenleme
 
 ## 🔧 Geliştirme (Development)
 
 ### Kod Kalitesi
-- TypeScript ile tip güvenliği
-- ESLint kod standardizasyonu
-- Modern React hooks pattern
-- Modüler component mimarisi
+- **TypeScript** ile tam tip güvenliği
+- **Modern React Hooks** pattern (useState, useCallback, useMemo)
+- **Modüler Component** mimarisi ile bakım kolaylığı
+- **Functional Components** ile performans optimizasyonu
 
 ### Performance Optimizasyonları
-- Lazy loading ile kod bölmesi
-- Memoization ile re-render optimizasyonu
-- Efficient map rendering
-- Optimized bundle size
+- **useMemo** ile katman görünürlük hesaplamalarının optimize edilmesi
+- **useCallback** ile gereksiz re-render'ların önlenmesi
+- **OpenLayers** ile efficient harita rendering
+- **Turf.js** ile client-side hesaplamaların hızlı yürütülmesi
+- Optimized bundle size (gzip sonrası ~200KB)
 
-### Genişletilebilirlik
-- Plugin mimarisi hazır
-- Yeni analiz araçları kolayca eklenebilir
-- Flexible data layer desteği
-- Custom styling imkanları
+### Mimarı Özellikleri
+- **services/turfService.ts** - Tüm analiz işlemlerinin merkezi yönetimi
+- **constants.ts** - 50+ araç tanımının yapılandırılabilir deposu
+- **hooks/useLayerVisibility.ts** - Katman görünürlüğü mantığının yeniden kullanılabilir hale getirilmesi
+- **types.ts** - Güçlü tip tanımları (ToolType enum, AnalysisResult interface)
+
+### Yeni Araç Ekleme
+Yeni bir analiz aracı eklemek oldukça basittir:
+
+1. `types.ts` içinde `ToolType` enum'ine yeni araç ekleyin
+2. `constants.ts` içinde `TOOLS_CONFIG` dizisine araç tanımını ekleyin
+3. `services/turfService.ts` içinde analiz fonksiyonunu implementeyin
+4. Sidebar.tsx içinde gerekirse ikon eşlemesini yapın
+
+Çok katlı mimarı sayesinde frontend ve analiz motoru bağımsız şekilde geliştirilebilir.
 
 ## 🚀 Deployment
 
@@ -199,6 +290,23 @@ RUN npm run build
 EXPOSE 5173
 CMD ["npm", "run", "preview"]
 ```
+
+## 📚 Eğitim Kaynakları (Educational Resources)
+
+Bu proje şu konuları öğrenmek isteyenler için harika bir kaynaktır:
+
+- **CBS Temeleri** - Vektör analizi, geometrik işlemler, topoloji
+- **React Modern Patterns** - Hooks, memoization, component lifecycle
+- **TypeScript** - Type-safe application development
+- **Web GIS** - OpenLayers, GeoJSON, coordinate systems
+- **Spatial Algorithms** - Buffer, Voronoi, clustering, interpolation
+- **Interactive Data Visualization** - Real-time map updates, parameter binding
+
+**İdeal Kullanım Alanları:**
+- ✅ CBS derslerinde interaktif öğretim aracı
+- ✅ Atölyelerde uygulamalı çalışmalar
+- ✅ Öğrenci projelerinin temel referansı
+- ✅ WebGIS geliştirme eğitimi
 
 ## 🤝 Katkıda Bulunma (Contributing)
 
