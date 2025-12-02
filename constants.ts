@@ -130,6 +130,7 @@ export const SAMPLE_POLYGONS: FeatureCollection = {
         ]]
       }
     },
+    // UPDATED FOR INTERSECT DEMO (Overlapping Squares)
     {
       type: "Feature",
       properties: { id: 601, name: "Bölge A (District A)", type: "Konut" },
@@ -137,9 +138,9 @@ export const SAMPLE_POLYGONS: FeatureCollection = {
         type: "Polygon",
         coordinates: [[
           [-73.98, 40.70],
-          [-73.96, 40.70],
-          [-73.96, 40.71],
-          [-73.98, 40.71],
+          [-73.95, 40.70],
+          [-73.95, 40.73],
+          [-73.98, 40.73],
           [-73.98, 40.70]
         ]]
       }
@@ -150,11 +151,11 @@ export const SAMPLE_POLYGONS: FeatureCollection = {
       geometry: {
         type: "Polygon",
         coordinates: [[
-          [-73.98, 40.71],
-          [-73.96, 40.71],
-          [-73.96, 40.72],
-          [-73.98, 40.72],
-          [-73.98, 40.71]
+          [-73.965, 40.715],
+          [-73.935, 40.715],
+          [-73.935, 40.745],
+          [-73.965, 40.745],
+          [-73.965, 40.715]
         ]]
       }
     }
