@@ -1,5 +1,5 @@
 import * as turf from '@turf/turf';
-import { FeatureCollection, Feature, Point, Polygon, LineString } from 'geojson';
+import { FeatureCollection, Feature, Point, Polygon, LineString, BBox, MultiPolygon, Geometry } from 'geojson';
 import { ToolType, AnalysisResult } from '../types';
 
 export const performAnalysis = (
@@ -13,6 +13,11 @@ export const performAnalysis = (
   let resultGeoJSON: FeatureCollection | undefined;
   let stats: any = {};
   let message = "";
+
+  // Cast collections to specific types for strict turf functions
+  const pointsFC = points as FeatureCollection<Point>;
+  const polygonsFC = polygons as FeatureCollection<Polygon>;
+  const linesFC = lines as FeatureCollection<LineString>;
 
   const getPolyById = (id: number) => polygons.features.find(f => f.properties?.id === id) as Feature<Polygon>;
   const getLineById = (id: string) => lines.features.find(f => f.properties?.id === id) as Feature<LineString>;
@@ -51,7 +56,7 @@ export const performAnalysis = (
         return c;
       });
       resultGeoJSON = turf.featureCollection(centroids);
-      message = "Merkez Noktalar (Centroids): Şekillerin geometrik ağırlık merkezleri hesaplandı.\n\n❓ Neden Kullanılır?\nKarmaşık şekillere sahip ilçe veya mahallelerin isim etiketlerini (Label) haritanın tam ortasına yerleştirmek için kullanılır. Ayrıca bir poligonu, analizlerde (örn: yoğunluk haritası) tek bir nokta olarak temsil etmek istediğinizde işe yarar.";
+      message = "Merkez Noktalar (Centroids): Şekillerin ağırlık merkezleri hesaplandı.\n\n❓ Neden Kullanılır?\nKarmaşık şekillere sahip ilçe veya mahallelerin isim etiketlerini (Label) haritanın tam ortasına yerleştirmek için kullanılır. Ayrıca bir poligonu, analizlerde (örn: yoğunluk haritası) tek bir nokta olarak temsil etmek istediğinizde işe yarar.";
       stats = { "Nokta (Count)": centroids.length };
       break;
     }
@@ -67,7 +72,7 @@ export const performAnalysis = (
             });
             start.properties = { ...start.properties, label: 'Başlangıç' };
             end.properties = { ...end.properties, label: 'Hedef' };
-            resultGeoJSON = turf.featureCollection([start, end, line]);
+            resultGeoJSON = turf.featureCollection([start, end, line] as Feature[]);
             message = `Açı & Azimut (Bearing): İki nokta arasındaki pusula açısı ${bearing.toFixed(2)} derece olarak ölçüldü.\n\n❓ Neden Kullanılır?\nNavigasyonda gidilecek yönü belirlemek, telekomünikasyon antenlerinin (baz istasyonu) hangi yöne bakacağını ayarlamak veya rüzgar/akıntı yönü analizlerinde kullanılır.`;
             stats = { "Açı (Angle)": bearing.toFixed(2) + "°" };
         }
@@ -76,14 +81,13 @@ export const performAnalysis = (
 
     case ToolType.BUFFER: {
       const radius = params.radius || 0.5;
-      const steps = params.steps || 64;
       const features: Feature[] = [];
 
       // 1. Point Buffer
       let pt = getPointById(900);
       if (!pt) pt = points.features[0] as Feature<Point>;
       if (pt) {
-          const ptBuff = turf.buffer(pt, radius, { units: 'kilometers', steps: steps });
+          const ptBuff = turf.buffer(pt, radius, { units: 'kilometers' });
           ptBuff.properties = { label: `Nokta ${radius}km` };
           features.push(ptBuff);
           features.push(pt); 
@@ -93,7 +97,7 @@ export const performAnalysis = (
       let line = getLineById('Hwy1');
       if (!line) line = lines.features[0] as Feature<LineString>;
       if (line) {
-          const lineBuff = turf.buffer(line, radius, { units: 'kilometers', steps: steps });
+          const lineBuff = turf.buffer(line, radius, { units: 'kilometers' });
           lineBuff.properties = { label: `Çizgi ${radius}km` };
           features.push(lineBuff);
           features.push(line);
@@ -103,7 +107,7 @@ export const performAnalysis = (
       let poly = getPolyById(1);
       if (!poly) poly = polygons.features[0] as Feature<Polygon>;
       if (poly) {
-          const polyBuff = turf.buffer(poly, radius, { units: 'kilometers', steps: steps });
+          const polyBuff = turf.buffer(poly, radius, { units: 'kilometers' });
           polyBuff.properties = { label: `Alan ${radius}km` };
           features.push(polyBuff);
           features.push(poly);
@@ -122,7 +126,8 @@ export const performAnalysis = (
       const p2 = getPolyById(2);
 
       if(p1 && p2) {
-          const int = turf.intersect(turf.featureCollection([p1, p2]));
+          // Cast feature collection to any to avoid strict type checks in turf.intersect
+          const int = turf.intersect(turf.featureCollection([p1, p2]) as any);
           if(int) {
               int.properties = { label: 'Kesişim Alanı', fill: '#ef4444', stroke: '#b91c1c' };
               resultGeoJSON = turf.featureCollection([int, p1, p2]);
@@ -137,11 +142,12 @@ export const performAnalysis = (
         const mask = getPolyById(500); // Clip Mask
         
         if (city && mask) {
-            const clipped = turf.intersect(turf.featureCollection([city, mask]));
+            // Cast feature collection to any to fix type error
+            const clipped = turf.intersect(turf.featureCollection([city, mask]) as any);
             if (clipped) {
                 clipped.properties = { label: 'Kırpılmış Şehir', fill: '#d946ef', stroke: '#a21caf' }; // Magenta
                 mask.properties = { ...mask.properties, label: 'Maske', fill: 'rgba(255,255,255,0.1)', stroke: '#94a3b8' };
-                resultGeoJSON = turf.featureCollection([mask, clipped]);
+                resultGeoJSON = turf.featureCollection([mask, clipped] as Feature[]);
                 message = "Kırpma (Clip): Şehir verisi, bir 'Maske' kullanılarak kesildi. Sadece maskenin içinde kalan kısım (Magenta) alındı.\n\n❓ Neden Kullanılır?\nBüyük bir ülke haritasından sadece üzerinde çalışacağınız ilin verisini kesip almak (Cookie Cutter) ve dosya boyutunu küçültmek için kullanılır.";
             } else {
                 message = "Kırpma işlemi başarısız. Maske ve hedef alan kesişmiyor olabilir.";
@@ -154,7 +160,8 @@ export const performAnalysis = (
       const pA = getPolyById(601);
       const pB = getPolyById(602);
       if(pA && pB) {
-          const un = turf.union(turf.featureCollection([pA, pB]));
+          // Cast feature collection to any to fix type error
+          const un = turf.union(turf.featureCollection([pA, pB]) as any);
           if(un) {
               un.properties = { label: 'Birleşmiş Bölge', fill: '#8b5cf6' };
               resultGeoJSON = turf.featureCollection([un]);
@@ -168,7 +175,8 @@ export const performAnalysis = (
         const p1 = getPolyById(1);
         const p2 = getPolyById(2);
         if(p1 && p2) {
-            const diff = turf.difference(turf.featureCollection([p1, p2]));
+            // Cast feature collection to any to fix type error
+            const diff = turf.difference(turf.featureCollection([p1, p2]) as any);
             if(diff) {
                 diff.properties = { label: 'Park Hariç Şehir', fill: '#f59e0b' };
                 resultGeoJSON = turf.featureCollection([diff]);
@@ -179,7 +187,8 @@ export const performAnalysis = (
       }
   
     case ToolType.DISSOLVE: {
-        const districtCollection = turf.featureCollection([getPolyById(601), getPolyById(602), getPolyById(3)]);
+        const districtCollection = turf.featureCollection([getPolyById(601), getPolyById(602), getPolyById(3)]) as any;
+        // Cast to any to assume the return type is correct for FeatureCollection<Polygon>
         const dis = turf.dissolve(districtCollection, { propertyName: 'type' }); 
         dis.features.forEach(f => { if(f.properties) f.properties.label = (f.properties.type || 'Birleşik') + ' (Dissolved)'; });
         resultGeoJSON = dis;
@@ -188,7 +197,7 @@ export const performAnalysis = (
     }
 
     case ToolType.CONVEX_HULL: {
-      const hull = turf.convex(points);
+      const hull = turf.convex(pointsFC);
       if (hull) {
           hull.properties = { label: 'Kapsama Sınırı' };
           resultGeoJSON = turf.featureCollection([hull]);
@@ -210,11 +219,11 @@ export const performAnalysis = (
 
     case ToolType.NEAREST: {
         const target = turf.point([-74.00, 40.72], { 'marker-color': '#F00', label: 'BAŞLANGIÇ' });
-        const near = turf.nearestPoint(target, points);
+        const near = turf.nearestPoint(target, pointsFC);
         if(near.properties) near.properties.label = "HEDEF";
         const dist = near.properties?.distanceToPoint.toFixed(2);
         const link = turf.lineString([target.geometry.coordinates, near.geometry.coordinates], { label: `${dist} km` });
-        resultGeoJSON = turf.featureCollection([target, near, link]);
+        resultGeoJSON = turf.featureCollection([target, near as Feature, link] as Feature[]);
         message = "En Yakın Nokta Analizi: Belirlenen referans noktasına kuş uçuşu en yakın olan nesne bulundu.\n\n❓ Neden Kullanılır?\nAcil durum yönetimi ve lojistik için. Örnek: 'Kaza yerine en yakın ambulans hangisi?', 'Müşterinin konumuna en yakın şubemiz nerede?', 'Yangına en yakın su kaynağı hangi noktada?'.";
         stats = { "Mesafe (Dist)": dist + " km" };
         break;
@@ -247,9 +256,9 @@ export const performAnalysis = (
     }
 
     case ToolType.VORONOI: {
-      const bbox = turf.bbox(points);
-      const options = { bbox: [bbox[0]-0.05, bbox[1]-0.05, bbox[2]+0.05, bbox[3]+0.05] as any };
-      const voronoi = turf.voronoi(points, options);
+      const bbox = turf.bbox(pointsFC);
+      const options = { bbox: [bbox[0]-0.05, bbox[1]-0.05, bbox[2]+0.05, bbox[3]+0.05] as BBox };
+      const voronoi = turf.voronoi(pointsFC, options);
       if(voronoi) {
           resultGeoJSON = voronoi;
           message = "Voronoi Diyagramı: Harita, noktalara göre 'hakimiyet alanlarına' bölündü.\n\n❓ Neden Kullanılır?\nHizmet bölgesi belirlemek için. Bir Voronoi hücresindeki herhangi bir konum, o hücrenin merkezindeki noktaya diğer tüm noktalardan daha yakındır. Örnek: 'Bu adresteki hasta hangi sağlık ocağına kayıtlı olmalı?', 'Hangi mahalleye hangi kargo şubesi bakmalı?'.";
@@ -258,7 +267,7 @@ export const performAnalysis = (
     }
 
     case ToolType.TIN: {
-      const tin = turf.tin(points);
+      const tin = turf.tin(pointsFC);
       resultGeoJSON = tin;
       message = "TIN (Üçgen Ağı): Noktalar kullanılarak sürekli bir yüzey ağı (Triangulated Irregular Network) oluşturuldu.\n\n❓ Neden Kullanılır?\nArazi modellemesi için. Yükseklik noktalarından (kot) 3 boyutlu arazi modeli (DEM) oluşturmak, eğim ve bakı haritaları üretmek veya suyun akış yönünü simüle etmek için kullanılır.";
       stats = { "Üçgen (Triangles)": tin.features.length };
@@ -267,7 +276,7 @@ export const performAnalysis = (
 
     case ToolType.KMEANS: {
       const k = params.numberOfClusters || 5;
-      const clustered = turf.clustersKmeans(points, { numberOfClusters: k });
+      const clustered = turf.clustersKmeans(pointsFC, { numberOfClusters: k });
       
       const hulls: Feature[] = [];
       for(let i=0; i<k; i++) {
@@ -289,10 +298,136 @@ export const performAnalysis = (
 
     case ToolType.DBSCAN: {
       const dist = params.maxDistance || 0.2;
-      const clustered = turf.clustersDbscan(points, dist, { units: 'kilometers' });
-      const validClusters = clustered.features.filter(f => f.properties?.cluster !== undefined && f.properties.dbscan !== 'noise');
+      const clustered = turf.clustersDbscan(pointsFC, dist, { units: 'kilometers' });
       resultGeoJSON = clustered;
       message = `DBSCAN Kümeleme: Sadece yoğunluğun yüksek olduğu bölgeler kümelendi, aykırı noktalar (gürültü) dışlandı.\n\n❓ Neden Kullanılır?\nSıcak nokta (Hotspot) tespiti için. Örnek: Şehirdeki suçun yoğunlaştığı bölgeleri bulmak veya trafik kazalarının sık yaşandığı kara noktaları tespit etmek. K-Means'ten farkı, her noktayı zorla bir gruba sokmaz, yalnız kalanları 'gürültü' olarak işaretler.`;
+      break;
+    }
+
+    case ToolType.BASE_STATION_COVERAGE: {
+      const maxRadius = params.radius || 4; // User input defines the 2G limit (max coverage)
+      
+      // Define 5 distinct stations
+      const stations = [
+          turf.point([-74.00, 40.72], { label: 'Merkez İstasyon' }), // Center
+          turf.point([-74.04, 40.75], { label: 'KB İstasyonu' }), // NW
+          turf.point([-73.96, 40.75], { label: 'KD İstasyonu' }), // NE
+          turf.point([-74.04, 40.69], { label: 'GB İstasyonu' }), // SW
+          turf.point([-73.96, 40.69], { label: 'GD İstasyonu' })  // SE
+      ];
+
+      // Technology Bands Config
+      const techs = [
+          { name: '5G', factor: 0.15, fill: '#ef4444', stroke: '#991b1b' }, // Red (Ultra Fast, Short Range)
+          { name: '4G', factor: 0.35, fill: '#f97316', stroke: '#c2410c' }, // Orange
+          { name: '3G', factor: 0.65, fill: '#eab308', stroke: '#a16207' }, // Yellow
+          { name: '2G', factor: 1.00, fill: '#22c55e', stroke: '#15803d' }  // Green (Voice, Long Range)
+      ];
+
+      const allFeatures: Feature[] = [...stations];
+      const bandsByType: Record<string, Feature<Polygon | MultiPolygon>[]> = {
+          '5G': [], '4G': [], '3G': [], '2G': []
+      };
+
+      // 1. Generate Buffers for each station and technology
+      stations.forEach((station) => {
+          techs.forEach(tech => {
+              const r = maxRadius * tech.factor;
+              const buff = turf.buffer(station, r, { units: 'kilometers' });
+              bandsByType[tech.name].push(buff);
+          });
+      });
+
+      // 2. Union & Difference Logic to create concentric rings (Donuts)
+      // Strategy:
+      // - Union all stations for a specific tech to create a continuous coverage layer for that tech.
+      // - Subtract the smaller tech layer from the larger tech layer to create the visible "band".
+      
+      const unionFeatures: Record<string, Feature<Polygon | MultiPolygon> | null> = {};
+
+      // Union all circles of the same tech type
+      for (const tech of techs) {
+          const buffers = bandsByType[tech.name];
+          if (buffers.length > 0) {
+              let unified: Feature<Polygon | MultiPolygon> | null = buffers[0];
+              for (let i = 1; i < buffers.length; i++) {
+                  try {
+                       // cast to any to fix type issues with turf union
+                       if (unified) unified = turf.union(turf.featureCollection([unified, buffers[i]]) as any);
+                  } catch(e) { /* ignore topo errors */ }
+              }
+              unionFeatures[tech.name] = unified;
+          }
+      }
+
+      // 3. Create display layers (Rings) by subtracting inner layers from outer layers
+      // Display order: 2G (Bottom) -> 3G -> 4G -> 5G (Top) doesn't matter if we use rings.
+      // 5G = Union5G
+      // 4G = Union4G - Union5G
+      // 3G = Union3G - Union4G
+      // 2G = Union2G - Union3G
+
+      const displayLayers: Feature[] = [];
+
+      // 5G Layer (Core)
+      if (unionFeatures['5G']) {
+          unionFeatures['5G'].properties = { 
+              fill: techs[0].fill + '80', // 50% opacity
+              stroke: techs[0].stroke, 
+              label: '5G (Ultra)',
+              width: 2
+          };
+          displayLayers.push(unionFeatures['5G']);
+      }
+
+      // 4G Layer (Ring)
+      if (unionFeatures['4G'] && unionFeatures['5G']) {
+          try {
+             // cast to any for turf.difference
+             const diff = turf.difference(turf.featureCollection([unionFeatures['4G'], unionFeatures['5G']]) as any);
+             if (diff) {
+                 diff.properties = { fill: techs[1].fill + '66', stroke: techs[1].stroke, label: '4G (LTE)', width: 2 };
+                 displayLayers.push(diff);
+             }
+          } catch(e) {}
+      }
+
+      // 3G Layer (Ring)
+      if (unionFeatures['3G'] && unionFeatures['4G']) {
+          try {
+             const diff = turf.difference(turf.featureCollection([unionFeatures['3G'], unionFeatures['4G']]) as any);
+             if (diff) {
+                 diff.properties = { fill: techs[2].fill + '55', stroke: techs[2].stroke, label: '3G (Geniş)', width: 2 };
+                 displayLayers.push(diff);
+             }
+          } catch(e) {}
+      }
+
+      // 2G Layer (Outer Ring)
+      if (unionFeatures['2G'] && unionFeatures['3G']) {
+          try {
+             const diff = turf.difference(turf.featureCollection([unionFeatures['2G'], unionFeatures['3G']]) as any);
+             if (diff) {
+                 diff.properties = { fill: techs[3].fill + '44', stroke: techs[3].stroke, label: '2G (Temel)', width: 2 };
+                 displayLayers.push(diff);
+             }
+          } catch(e) {}
+      }
+
+      resultGeoJSON = turf.featureCollection([...displayLayers, ...stations]);
+
+      message = `Çoklu Bant Baz İstasyonu Analizi:\n5 istasyon için 2G, 3G, 4G ve 5G sinyal bantları simüle edildi.\n\n` + 
+                `🔴 5G (${(maxRadius*0.15).toFixed(1)}km): En hızlı veri, en dar alan.\n` +
+                `🟠 4G (${(maxRadius*0.35).toFixed(1)}km): Yüksek hızlı mobil veri.\n` +
+                `🟡 3G (${(maxRadius*0.65).toFixed(1)}km): Geniş veri kapsama alanı.\n` +
+                `🟢 2G (${maxRadius.toFixed(1)}km): Sadece ses, en uzak mesafe.\n\n` +
+                `❓ Neden Kullanılır?\nFrekans planlaması için. Düşük frekanslar (2G/800MHz) uzağa giderken, yüksek frekanslar (5G/3500MHz) sönümlenir. Operatörler bu analizi yaparak hangi teknoloji ile nüfusun yüzde kaçını kapsadıklarını hesaplar.`;
+      
+      stats = { 
+          "Maksimum Erişim (2G)": `${maxRadius} km`,
+          "Kapsanan Alan (5G)": unionFeatures['5G'] ? `${(turf.area(unionFeatures['5G'])/1000000).toFixed(2)} km²` : '0',
+          "Kapsanan Alan (2G)": unionFeatures['2G'] ? `${(turf.area(unionFeatures['2G'])/1000000).toFixed(2)} km²` : '0'
+      };
       break;
     }
 
@@ -348,7 +483,7 @@ export const performAnalysis = (
              const dist = snapped.properties?.dist || 999;
              
              if (dist < distThreshold) {
-                 snapped.properties = { label: 'Yapışan' };
+                 snapped.properties = { ...snapped.properties, label: 'Yapışan' };
                  const connector = turf.lineString([point.geometry.coordinates, snapped.geometry.coordinates], { label: `${(dist*1000).toFixed(0)}m` });
                  results.push(snapped, connector);
                  snappedCount++;
@@ -396,10 +531,10 @@ export const performAnalysis = (
     }
 
     case ToolType.POLYGON_TO_LINE: {
-        const linesFromPoly = polygons.features.map(f => turf.polygonToLine(f as Feature<Polygon>));
+        const linesFromPoly = polygons.features.map(f => turf.polygonToLine(f as any)); // cast to any for strict types
         const flat: Feature[] = [];
         linesFromPoly.forEach(res => {
-            if(res.type === 'FeatureCollection') flat.push(...res.features);
+            if(res.type === 'FeatureCollection') flat.push(...res.features as Feature[]);
             else flat.push(res as Feature);
         });
         flat.forEach(f => f.properties = { label: 'Sınır Çizgisi' });
@@ -412,7 +547,8 @@ export const performAnalysis = (
         let target = getLineById('SiteFence');
         if (!target) target = lines.features[0] as Feature<LineString>;
         if (target) {
-            const polys = [turf.lineToPolygon(target)];
+            // Cast to any because turf.lineToPolygon might be strict with input type
+            const polys = [turf.lineToPolygon(target as any)];
             if(polys[0]) polys[0].properties = { label: 'Kapalı Alan' };
             resultGeoJSON = turf.featureCollection(polys);
             message = "Çizgiden Poligona: Uçları birleşen çizgi (Çit), kapalı bir alana (Poligon) dönüştürüldü.\n\n❓ Neden Kullanılır?\nVeri tipi dönüşümü için. Örnek: GPS ile arazide yürüyerek kaydedilen bir izi (tracklog) parsel alanına çevirip m² hesabı yapmak veya CAD çizimlerinden gelen çizgileri CBS poligonlarına dönüştürmek için.";
@@ -432,7 +568,7 @@ export const performAnalysis = (
             break;
         }
 
-        const featuresToProcess = [highResLine];
+        const featuresToProcess = [highResLine as Feature<LineString>];
         const results: Feature[] = [];
         let beforePoints = 0;
         let afterPoints = 0;
@@ -444,7 +580,8 @@ export const performAnalysis = (
             beforePoints += countBefore;
 
             // Clone and style original as 'Ghost' for comparison
-            const ghost = turf.clone(f);
+            // Cast f to any or Feature<LineString> if clone is strict
+            const ghost = turf.clone(f as any);
             ghost.properties = { ...ghost.properties, label: 'Orjinal', stroke: '#475569', fill: 'none', width: 2 };
             results.push(ghost);
 
@@ -472,10 +609,10 @@ export const performAnalysis = (
 
     case ToolType.HEXBIN: {
         const cell = params.cellSide || 0.2;
-        const bbox = turf.bbox(points);
+        const bbox = turf.bbox(pointsFC);
         // Expand bbox slightly to catch edge points
         const hexGrid = turf.hexGrid([bbox[0]-0.02, bbox[1]-0.02, bbox[2]+0.02, bbox[3]+0.02], cell, { units: 'kilometers' });
-        const collected = turf.collect(hexGrid, points, 'id', 'pts');
+        const collected = turf.collect(hexGrid, pointsFC, 'id', 'pts');
         const valid = collected.features.filter(f => f.properties?.pts && f.properties.pts.length > 0).map(f => {
             const c = f.properties!.pts.length;
             return turf.feature(f.geometry, { ...f.properties, count: c, label: c.toString() });
@@ -486,7 +623,7 @@ export const performAnalysis = (
     }
 
     case ToolType.ISOBANDS: {
-        const grid = turf.interpolate(points, 0.05, { gridType: 'point', property: 'revenue', units: 'kilometers' });
+        const grid = turf.interpolate(pointsFC, 0.05, { gridType: 'point', property: 'revenue', units: 'kilometers' }) as any;
         const breaks = params.breaks || 5;
         const step = 5000 / breaks;
         const breakVals = Array.from({length: breaks}, (_, i) => i * step);
@@ -501,7 +638,7 @@ export const performAnalysis = (
     
     case ToolType.IDW: {
         const cell = params.cellSize || 0.1;
-        const grid = turf.interpolate(points, cell, { gridType: 'hex', property: 'revenue', units: 'kilometers' });
+        const grid = turf.interpolate(pointsFC, cell, { gridType: 'hex', property: 'revenue', units: 'kilometers' });
         
         const colors = ['#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444']; // Blue -> Cyan -> Green -> Orange -> Red
         
@@ -528,7 +665,7 @@ export const performAnalysis = (
     case ToolType.HEX_GRID: {
         const cell = params.cellSize || 0.5;
         const bbox = turf.bbox(polygons);
-        const area = [bbox[0]-0.01, bbox[1]-0.01, bbox[2]+0.01, bbox[3]+0.01];
+        const area = [bbox[0]-0.01, bbox[1]-0.01, bbox[2]+0.01, bbox[3]+0.01] as BBox;
         let grid;
         let typeName = "";
         
@@ -552,7 +689,7 @@ export const performAnalysis = (
         
         const sector = turf.sector(center, radius, b1, b2, { units: 'kilometers' });
         sector.properties = { label: 'Görüş Açısı' };
-        resultGeoJSON = turf.featureCollection([sector, turf.point(center)]);
+        resultGeoJSON = turf.featureCollection([sector, turf.point(center)] as Feature[]);
         message = `Sektör (Sector): Belirli bir açıda ve yarıçapta dairesel dilim oluşturuldu.\n\n❓ Neden Kullanılır?\nGörüş alanı ve kapsama analizleri için. Örnek: Bir güvenlik kamerasının (CCTV) kör noktalarını görmek, bir deniz fenerinin aydınlattığı alanı çizmek veya telekomünikasyon anteninin (sektör anten) sinyal yaydığı alanı modellemek için.`;
         break;
     }
@@ -563,7 +700,7 @@ export const performAnalysis = (
         const yAx = params.ySemiAxis || 0.5;
         const ellipse = turf.ellipse(center, xAx, yAx, { units: 'kilometers' });
         ellipse.properties = { label: 'Elips Alan' };
-        resultGeoJSON = turf.featureCollection([ellipse, turf.point(center)]);
+        resultGeoJSON = turf.featureCollection([ellipse, turf.point(center)] as Feature[]);
         message = `Elips (Ellipse): X ve Y eksenlerinde farklı yarıçaplara sahip elips çizildi.\n\n❓ Neden Kullanılır?\nYönlü dağılım analizleri için. Örnek: 'Standart Sapma Elipsi' kullanarak suçların veya bir salgın hastalığın hangi yöne doğru (Kuzey-Güney mi, Doğu-Batı mı?) yayıldığını görmek için kullanılır.`;
         break;
     }
@@ -589,7 +726,8 @@ export const performAnalysis = (
         const result = turf.booleanPointInPolygon(pt, city);
         city.properties = { ...city.properties, label: 'Kapsayan' };
         pt.properties = { ...pt.properties, label: 'İçerideki' };
-        resultGeoJSON = turf.featureCollection([city, pt]);
+        // Cast to any to avoid strict FeatureCollection generic inference issues (Polygon vs MultiPolygon)
+        resultGeoJSON = turf.featureCollection([city, pt] as any);
         message = `Nokta Poligon İçinde mi? -> ${result ? 'EVET (TRUE)' : 'HAYIR (FALSE)'}.\n\n❓ Neden Kullanılır?\nGeofencing (Coğrafi Çitleme) için. Örnek: 'Araç belirlenen bölgenin dışına çıktı mı?', 'Bu adres hangi hizmet bölgesine düşüyor?', 'Kullanıcı şu an parkın içinde mi?'.`;
         stats = { "Sonuç": result ? "TRUE" : "FALSE" };
         break;
@@ -600,7 +738,7 @@ export const performAnalysis = (
         const result = turf.booleanContains(city, park);
         city.properties = { ...city.properties, label: 'Kapsayan' };
         park.properties = { ...park.properties, label: 'İçerilen' };
-        resultGeoJSON = turf.featureCollection([city, park]);
+        resultGeoJSON = turf.featureCollection([city, park] as Feature[]);
         message = `Kapsıyor mu (Contains)? -> ${result ? 'EVET (TRUE)' : 'HAYIR (FALSE)'}.\n\n❓ Neden Kullanılır?\nHiyerarşik ilişki kontrolü için. Örnek: 'İlçe sınırı, mahalle sınırını tamamen içine alıyor mu?' (Dışarı taşma hatası var mı?) kontrolü yapmak için.`;
         stats = { "Sonuç": result ? "TRUE" : "FALSE" };
         break;
@@ -610,7 +748,7 @@ export const performAnalysis = (
         const river = getLineById('River1');
         const result = turf.booleanCrosses(river, city);
         river.properties = { ...river.properties, label: 'Kesen Hat' };
-        resultGeoJSON = turf.featureCollection([city, river]);
+        resultGeoJSON = turf.featureCollection([city, river] as Feature[]);
         message = `Kesiyor mu (Crosses)? -> ${result ? 'EVET (TRUE)' : 'HAYIR (FALSE)'}.\n\n❓ Neden Kullanılır?\nKesişim tespiti için. Örnek: 'Fay hattı yerleşim yerinin altından geçiyor mu?', 'Nehir otoyolu kesiyor mu (Köprü gerekir mi)?' analizleri için.`;
         stats = { "Sonuç": result ? "TRUE" : "FALSE" };
         break;
@@ -620,7 +758,7 @@ export const performAnalysis = (
         const island = getPolyById(4);
         const result = turf.booleanDisjoint(city, island);
         island.properties = { ...island.properties, label: 'Ayrık Ada' };
-        resultGeoJSON = turf.featureCollection([city, island]);
+        resultGeoJSON = turf.featureCollection([city, island] as Feature[]);
         message = `Ayrık mı (Disjoint)? -> ${result ? 'EVET (TRUE)' : 'HAYIR (FALSE)'}.\n\n❓ Neden Kullanılır?\nBağımsızlık kontrolü için. Örnek: 'Kimyasal tesis, yerleşim yerinden yeterince uzak (ayrık) mı?', 'İki parsel arasında boşluk var mı?'.`;
         stats = { "Sonuç": result ? "TRUE" : "FALSE" };
         break;
@@ -630,7 +768,7 @@ export const performAnalysis = (
         const park = getPolyById(2);
         const result = turf.booleanOverlap(city, park);
         park.properties = { ...park.properties, label: 'Örtüşen' };
-        resultGeoJSON = turf.featureCollection([city, park]);
+        resultGeoJSON = turf.featureCollection([city, park] as Feature[]);
         message = `Örtüşüyor mu (Overlap)? -> ${result ? 'EVET (TRUE)' : 'HAYIR (FALSE)'}.\n\n❓ Neden Kullanılır?\nHata denetimi için. Örnek: Kadastroda parsellerin üst üste binmemesi gerekir. Overlap testi ile hatalı çizilmiş ve birbiri üzerine taşmış tapu alanları bulunur.`;
         stats = { "Sonuç": result ? "TRUE" : "FALSE" };
         break;
@@ -640,7 +778,7 @@ export const performAnalysis = (
         const ghost = getPolyById(99);
         const result = turf.booleanEqual(city, ghost);
         ghost.properties = { ...ghost.properties, label: 'Kopya' };
-        resultGeoJSON = turf.featureCollection([city, ghost]);
+        resultGeoJSON = turf.featureCollection([city, ghost] as Feature[]);
         message = `Eşit mi (Equal)? -> ${result ? 'EVET (TRUE)' : 'HAYIR (FALSE)'}.\n\n❓ Neden Kullanılır?\nVeri doğrulama için. Örnek: 'Veritabanındaki bu kayıt ile şu kayıt mükerrer (duplicate) mi?', 'Zaman içinde parselin sınırları değişmiş mi yoksa aynı mı kalmış?'.`;
         stats = { "Sonuç": result ? "TRUE" : "FALSE" };
         break;
@@ -650,7 +788,7 @@ export const performAnalysis = (
         const ind = getPolyById(3);
         const result = turf.booleanTouches(city, ind);
         ind.properties = { ...ind.properties, label: 'Komşu' };
-        resultGeoJSON = turf.featureCollection([city, ind]);
+        resultGeoJSON = turf.featureCollection([city, ind] as Feature[]);
         message = `Temas Ediyor mu (Touches)? -> ${result ? 'EVET (TRUE)' : 'HAYIR (FALSE)'}.\n\n❓ Neden Kullanılır?\nKomşuluk analizi için. Örnek: 'Parsel A, Parsel B ile sınır komşusu mu?', 'Türkiye'nin sınır komşuları hangileridir?' (İç içe geçmeden sadece sınırdan dokunma durumu).`;
         stats = { "Sonuç": result ? "TRUE" : "FALSE" };
         break;
@@ -660,7 +798,7 @@ export const performAnalysis = (
         const hwy = getLineById('Hwy1');
         const result = turf.booleanIntersects(hwy, city);
         hwy.properties = { ...hwy.properties, label: 'Kesişen' };
-        resultGeoJSON = turf.featureCollection([city, hwy]);
+        resultGeoJSON = turf.featureCollection([city, hwy] as Feature[]);
         message = `Kesişiyor mu (Intersects)? -> ${result ? 'EVET (TRUE)' : 'HAYIR (FALSE)'}.\n\n❓ Neden Kullanılır?\nEn genel ilişki sorgusudur. 'Bu iki nesne herhangi bir şekilde birbirine değiyor mu?' sorusuna cevap verir. Kapsama, kesme, örtüşme veya temas etme durumlarının hepsinde TRUE döner. Hızlı filtreleme için kullanılır.`;
         stats = { "Sonuç": result ? "TRUE" : "FALSE" };
         break;

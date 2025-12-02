@@ -31,7 +31,8 @@ import {
   Compass, 
   PieChart, 
   Crop, 
-  MoveHorizontal 
+  MoveHorizontal,
+  Wifi // Changed icon for Coverage
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -63,6 +64,7 @@ const getIcon = (id: string) => {
     case 'NEAREST': return <Target size={18} />;
     case 'DISTANCE_MATRIX': return <Grid3x3 size={18} />;
     case 'BEARING': return <Compass size={18} />;
+    case 'BASE_STATION_COVERAGE': return <Wifi size={18} />;
     
     case 'LINE_INTERSECT': return <GitMerge size={18} />;
     case 'BEZIER': return <Spline size={18} />;
@@ -119,6 +121,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTool, onSelectTool, onRu
   const [sectorAngle2, setSectorAngle2] = useState(90);
   const [ellipseX, setEllipseX] = useState(1);
   const [ellipseY, setEllipseY] = useState(0.5);
+  
+  // Coverage Params
+  const [coverageRadius, setCoverageRadius] = useState(3);
 
   const categories = Array.from(new Set(TOOLS_CONFIG.map(t => t.category)));
 
@@ -155,6 +160,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTool, onSelectTool, onRu
     if (activeTool === ToolType.ELLIPSE) {
         params.xSemiAxis = ellipseX;
         params.ySemiAxis = ellipseY;
+    }
+    
+    if (activeTool === ToolType.BASE_STATION_COVERAGE) {
+        params.radius = coverageRadius;
     }
     
     onRunAnalysis(params);
@@ -265,6 +274,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTool, onSelectTool, onRu
                <>
                  <InputRange label="X Ekseni / X Axis (km)" val={ellipseX} setVal={setEllipseX} min={0.5} max={5} step={0.5} />
                  <InputRange label="Y Ekseni / Y Axis (km)" val={ellipseY} setVal={setEllipseY} min={0.5} max={5} step={0.5} />
+               </>
+            )}
+            
+            {activeTool === ToolType.BASE_STATION_COVERAGE && (
+               <>
+                 <InputRange label="Max Kapsama / Max Radius (2G) (km)" val={coverageRadius} setVal={setCoverageRadius} min={1} max={10} step={0.5} />
                </>
             )}
 

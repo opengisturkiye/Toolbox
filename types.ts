@@ -36,6 +36,7 @@ export enum ToolType {
   DISTANCE_MATRIX = 'DISTANCE_MATRIX',
   LINE_OFFSET = 'LINE_OFFSET', // New
   SNAP = 'SNAP', // New
+  BASE_STATION_COVERAGE = 'BASE_STATION_COVERAGE', // Renamed from ISOCHRONES
   
   // Density / Grids
   HEXBIN = 'HEXBIN',

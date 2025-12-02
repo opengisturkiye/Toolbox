@@ -87,7 +87,10 @@ const App: React.FC = () => {
         lines = false;
     }
     if (['VORONOI', 'CONVEX_HULL', 'TIN', 'NEAREST', 'DISTANCE_MATRIX'].includes(tool)) {
-        points = true;
+        points = true; // For Isochrones we need the start point visible
+    }
+    if (tool === 'BASE_STATION_COVERAGE') {
+        points = false; // We create specific stations in the analysis
     }
     if (['KMEANS', 'DBSCAN'].includes(tool)) {
         points = false; // Result layer shows the clusters
@@ -185,7 +188,7 @@ const App: React.FC = () => {
             visibleLayers={layerVisibility}
           />
 
-          {/* Analysis Result Overlay - Moved to Bottom Right */}
+          {/* Analysis Result Overlay - Bottom Right */}
           {analysisResult && (
             <div className="absolute bottom-8 right-4 bg-slate-800/95 backdrop-blur border border-slate-700 p-4 rounded-lg shadow-2xl max-w-sm w-full animate-in fade-in slide-in-from-bottom-4 z-20 overflow-y-auto max-h-[60vh]">
               <div className="flex items-center justify-between mb-2">

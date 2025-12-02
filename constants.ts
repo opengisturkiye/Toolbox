@@ -308,6 +308,7 @@ export const TOOLS_CONFIG = [
   { id: 'DBSCAN', label: 'DBSCAN Kümeleme', category: 'Mekansal Analiz (Spatial Analysis)', description: 'Gürültüyü filtreleyerek yoğunluk kümelerini bulur.', requiresParams: true },
 
   // 4. Network & Line Analysis
+  { id: 'BASE_STATION_COVERAGE', label: 'Baz İstasyonu Kapsama (Coverage)', category: 'Ağ Analizi (Network)', description: 'Çoklu baz istasyonu noktalarının sinyal kapsama alanlarını birleştirir.', requiresParams: true },
   { id: 'LINE_INTERSECT', label: 'Yol Kesişimleri (Intersections)', category: 'Ağ Analizi (Network)', description: 'Yolların kesiştiği kavşak noktalarını tespit eder.' },
   { id: 'BEZIER', label: 'Eğri Yumuşatma (Bezier Spline)', category: 'Ağ Analizi (Network)', description: 'Keskin köşeli çizgileri estetik eğrilere dönüştürür.', requiresParams: true },
   { id: 'LINE_CHUNK', label: 'Parçalara Böl (Line Chunk)', category: 'Ağ Analizi (Network)', description: 'Uzun hatları belirli km aralıklarla segmentlere ayırır.', requiresParams: true },
