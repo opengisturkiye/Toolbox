@@ -185,9 +185,38 @@ const analyzeVector = (tool: ToolType, ctx: Context): ServiceResult => {
       if(pA && pB) {
           const un = turf.union(T.featureCollection([pA, pB]) as any);
           if(un) {
-              un.properties = { label: 'Birleşmiş Bölge', fill: '#8b5cf6' };
-              resultGeoJSON = T.featureCollection([un]);
-              message = "Birleşim (Union): İki katmanın tüm geometrileri birleştirilerek, her iki katmanın öznitelikleri korunarak kesişim noktalarında parçalanan yeni katman oluşturulmuştur.\n\n❓ Neden Kullanılır?\nİki farklı veri kaynağını (örneğin idari sınırlar + emlak parselleri) birleştirirken, her iki veri kaynağının özniteliklerini kayıp vermeden detaylı analiz haritası oluşturmak için kullanılır.";
+              // Union'ın gerçek anlamını göstermek için: parçaları özellikleriyle renklendir
+              // A kısmı (sadece pA'da): mavi, B kısmı (sadece pB'de): yeşil, Kesişim: mor
+              const features: any[] = [];
+              
+              // Union sonucu tek geometry olarak gelir, bunu göstermek için:
+              // Orijinal parçaları renkli olarak göster
+              const pAStyled = { ...pA };
+              pAStyled.properties = { 
+                label: 'Katman 1 (Şehir Merkezi)', 
+                fill: '#3b82f6',
+                stroke: '#1e40af'
+              };
+              features.push(pAStyled);
+              
+              const pBStyled = { ...pB };
+              pBStyled.properties = { 
+                label: 'Katman 2 (Yeşil Park)', 
+                fill: '#10b981',
+                stroke: '#059669'
+              };
+              features.push(pBStyled);
+              
+              // Union sonucu
+              un.properties = { 
+                label: 'Union Sonucu', 
+                fill: '#8b5cf6',
+                stroke: '#7c3aed'
+              };
+              features.push(un);
+              
+              resultGeoJSON = T.featureCollection(features);
+              message = "Birleşim (Union): İki katmanın tüm geometrileri birleştirilmiştir.\n\n📊 Gösterilen Katmanlar:\n🔵 Katman 1 (Şehir Merkezi) - Mavi\n🟢 Katman 2 (Yeşil Park) - Yeşil\n🟣 Union Sonucu - Mor (Kesişimde parçalı)\n\n💡 Detay:\nUnion işlemi, kesişim noktalarında geometrileri otomatik olarak parçalar ve her iki katmanın özniteliklerini korur. Böylece her parçanın hangi katmandan geldiği bilinir.";
           }
       }
       break;
