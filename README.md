@@ -100,7 +100,7 @@ Uygulama, **Turf.js** kütüphanesinden güç alan, **50'den fazla analiz aracı
 **Katmanlar arası karmaşık geometrik işlemler**
 - **Tampon Bölge (Buffer)** - Nokta, çizgi veya poligon etrafında dinamik güvenlik/etki alanı oluşturma
 - **Kesişim (Intersect)** - İki alanın sadece çakışan (ortak) kısmını çıkarma
-- **Birleşim (Union)** - Farklı bölgeleri tek bir yasal sınır haline getirir
+- **Birleşim (Union)** - Her iki katmandaki tüm alanları, parçalayarak ve öznitelikleri birleştirerek tek bir katman hâline getirir
 - **Fark (Difference)** - Bir alandan diğerini kesip çıkarır (A eksi B operasyonu)
 - **Bütünleştir (Dissolve)** - İç sınırları kaldırarak aynı türdeki bölgeleri birleştirme
 - **Kırpma (Clip)** - Büyük veriyi belirlenen maske (çerçeve) ile kesme
