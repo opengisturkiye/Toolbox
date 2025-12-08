@@ -292,7 +292,7 @@ export const TOOLS_CONFIG = [
   // 2. Vector Operations (Manipulation)
   { id: 'BUFFER', label: 'Tampon Bölge (Buffer)', category: 'Vektör İşlemleri (Vector Ops)', description: 'Nesne etrafında güvenli bölge veya etki alanı oluşturur.', requiresParams: true },
   { id: 'INTERSECT', label: 'Kesişim (Intersect)', category: 'Vektör İşlemleri (Vector Ops)', description: 'İki alanın sadece çakışan (ortak) kısmını çıkarır.' },
-  { id: 'UNION', label: 'Birleşim (Union)', category: 'Vektör İşlemleri (Vector Ops)', description: 'Her iki katmandaki tüm alanları, parçalayarak ve öznitelikleri birleştirerek tek bir katman hâline getirir.' },
+  { id: 'UNION', label: 'Birleşim (Union)', category: 'Vektör İşlemleri (Vector Ops)', description: 'İki katmanın tüm geometrilerini birleştirerek, her iki katmanın özniteliklerini koruyan, kesişim noktalarında parçalanan yeni katman oluşturma.' },
   { id: 'DIFFERENCE', label: 'Fark (Difference)', category: 'Vektör İşlemleri (Vector Ops)', description: 'Bir alandan diğerini kesip çıkarır (A eksi B operasyonu).' },
   { id: 'DISSOLVE', label: 'Bütünleştir (Dissolve)', category: 'Vektör İşlemleri (Vector Ops)', description: 'İç sınırları kaldırarak aynı tip bölgeleri birleştirir.' },
   { id: 'CLIP', label: 'Kırpma (Clip)', category: 'Vektör İşlemleri (Vector Ops)', description: 'Büyük veriyi, belirlenen bir maske (çerçeve) ile keser.', requiresParams: false },

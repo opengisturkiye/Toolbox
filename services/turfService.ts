@@ -187,7 +187,7 @@ const analyzeVector = (tool: ToolType, ctx: Context): ServiceResult => {
           if(un) {
               un.properties = { label: 'Birleşmiş Bölge', fill: '#8b5cf6' };
               resultGeoJSON = T.featureCollection([un]);
-              message = "Birleşim (Union): Her iki katmandaki tüm alanlar parçalanarak ve öznitelikleri birleştirilerek tek bir katman oluşturulmuştur.\n\n❓ Neden Kullanılır?\nİki katmanın tam olarak kesişme hallerini çok detaylı bir şekilde analiz etmek, arazi uyum analizi yapmak veya mekansal veri birleştirmek için kullanılır.";
+              message = "Birleşim (Union): İki katmanın tüm geometrileri birleştirilerek, her iki katmanın öznitelikleri korunarak kesişim noktalarında parçalanan yeni katman oluşturulmuştur.\n\n❓ Neden Kullanılır?\nİki farklı veri kaynağını (örneğin idari sınırlar + emlak parselleri) birleştirirken, her iki veri kaynağının özniteliklerini kayıp vermeden detaylı analiz haritası oluşturmak için kullanılır.";
           }
       }
       break;
