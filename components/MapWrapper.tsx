@@ -88,11 +88,11 @@ export const MapWrapper: React.FC<MapWrapperProps> = ({ points, polygons, lines,
              return baseStyle;
         }
 
-        // 2. UNION LAYERS - Show with their specific colors
+        // 2. UNION LAYERS - Show with their specific colors and transparency
         if (props.label === 'Katman 1 (Şehir Merkezi)' || props.label === 'Katman 2 (Yeşil Park)' || props.label === 'Union Sonucu') {
             baseStyle = new Style({
-                stroke: new Stroke({ color: props.stroke || '#10b981', width: 3 }),
-                fill: new Fill({ color: props.fill || 'rgba(16, 185, 129, 0.3)' }),
+                stroke: new Stroke({ color: props.stroke || '#10b981', width: 2 }),
+                fill: new Fill({ color: props.fill || 'rgba(16, 185, 129, 0.5)' }),
             });
         } else if (props.type === 'clusterHull') {
             const colors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0'];

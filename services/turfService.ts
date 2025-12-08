@@ -194,29 +194,29 @@ const analyzeVector = (tool: ToolType, ctx: Context): ServiceResult => {
               const pAStyled = { ...pA };
               pAStyled.properties = { 
                 label: 'Katman 1 (Şehir Merkezi)', 
-                fill: '#3b82f6',
-                stroke: '#1e40af'
+                fill: 'rgba(59, 130, 246, 0.5)',      // Mavi - 50% şeffaflık
+                stroke: '#3b82f6'                      // Daha koyu mavi çizgi
               };
               features.push(pAStyled);
               
               const pBStyled = { ...pB };
               pBStyled.properties = { 
                 label: 'Katman 2 (Yeşil Park)', 
-                fill: '#10b981',
-                stroke: '#059669'
+                fill: 'rgba(16, 185, 129, 0.5)',      // Yeşil - 50% şeffaflık
+                stroke: '#10b981'                      // Daha koyu yeşil çizgi
               };
               features.push(pBStyled);
               
               // Union sonucu
               un.properties = { 
                 label: 'Union Sonucu', 
-                fill: '#8b5cf6',
-                stroke: '#7c3aed'
+                fill: 'rgba(139, 92, 246, 0.6)',      // Mor - 60% şeffaflık
+                stroke: '#8b5cf6'                      // Daha koyu mor çizgi
               };
               features.push(un);
               
               resultGeoJSON = T.featureCollection(features);
-              message = "Birleşim (Union): İki katmanın tüm geometrileri birleştirilmiştir.\n\n📊 Gösterilen Katmanlar:\n🔵 Katman 1 (Şehir Merkezi) - Mavi\n🟢 Katman 2 (Yeşil Park) - Yeşil\n🟣 Union Sonucu - Mor (Kesişimde parçalı)\n\n💡 Detay:\nUnion işlemi, kesişim noktalarında geometrileri otomatik olarak parçalar ve her iki katmanın özniteliklerini korur. Böylece her parçanın hangi katmandan geldiği bilinir.";
+              message = "Birleşim (Union): İki katmanın tüm geometrileri birleştirilmiştir.\n\n📊 Gösterilen Katmanlar:\n🔵 Katman 1 (Şehir Merkezi) - Mavi (50% şeffaf)\n🟢 Katman 2 (Yeşil Park) - Yeşil (50% şeffaf)\n🟣 Union Sonucu - Mor (60% şeffaf, Kesişimde parçalı)\n\n💡 Detay:\nUnion işlemi, kesişim noktalarında geometrileri otomatik olarak parçalar ve her iki katmanın özniteliklerini korur. Böylece her parçanın hangi katmandan geldiği bilinir.";
           }
       }
       break;
